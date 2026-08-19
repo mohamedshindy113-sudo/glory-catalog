@@ -70,7 +70,7 @@
   .page img.lq{filter:blur(4px);transform:scale(1.03)}
   .page img.full{filter:none;transform:none}
   .spread{
-    position:relative;display:flex;gap:6px;margin-bottom:.9rem;cursor:zoom-in;
+    position:relative;display:flex;gap:0;margin-bottom:.9rem;cursor:zoom-in;
     background:var(--card);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);
   }
   .spread img{
@@ -105,7 +105,7 @@
     -webkit-overflow-scrolling:touch;
   }
   #lightbox .wrap{
-    display:flex;gap:6px;align-items:flex-start;justify-content:center;
+    display:flex;gap:0;align-items:flex-start;justify-content:center;
   }
   #lightbox img{
     display:block;max-width:none;width:auto;height:auto;
@@ -261,7 +261,7 @@
 
   function fitLB(){
     var vw = lbStage.clientWidth;
-    var gap = lbImgs.length > 1 ? 6 : 0;
+    var gap = 0;
     var per = lbImgs.length > 1 ? Math.floor((vw - gap) / 2) : vw;
     lbImgs.forEach(function(img){
       var nw = img.naturalWidth, nh = img.naturalHeight;
