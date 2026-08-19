@@ -78,7 +78,18 @@
   }
   .page img.lq{filter:blur(4px);transform:scale(1.03)}
   .page img.full{filter:none;transform:none}
-  .page .pgno{
+  .spread{
+    position:relative;display:flex;gap:6px;margin-bottom:.9rem;cursor:zoom-in;
+    background:var(--card);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);
+  }
+  .spread img{
+    flex:1 1 0;min-width:0;display:block;aspect-ratio:1/1;
+    background:#e8eaee;object-fit:cover;
+    transition:transform .25s ease, opacity .3s ease;
+  }
+  .spread img.lq{filter:blur(4px);transform:scale(1.03)}
+  .spread img.full{filter:none;transform:none}
+  .page .pgno, .spread .pgno{
     position:absolute;right:.5rem;bottom:.5rem;z-index:2;
     background:rgba(0,0,0,.55);color:#fff;font-size:.68rem;font-weight:700;
     padding:.12rem .5rem;border-radius:999px;pointer-events:none;
@@ -101,6 +112,9 @@
     width:100%;height:100%;overflow:auto;overscroll-behavior:contain;
     display:flex;align-items:flex-start;justify-content:center;padding:0;
     -webkit-overflow-scrolling:touch;
+  }
+  #lightbox .wrap{
+    display:flex;gap:6px;align-items:flex-start;justify-content:center;
   }
   #lightbox img{
     display:block;max-width:none;width:auto;height:auto;
@@ -152,13 +166,11 @@
 </header>
 
 <nav class="sections" id="nav">
-  <a href="#s-cover">Cover</a>
   <a href="#s-football">Football</a>
   <a href="#s-basketball">Basketball</a>
   <a href="#s-handball">Handball</a>
   <a href="#s-volleyball">Volleyball</a>
   <a href="#s-racket">Racket</a>
-  <a href="#s-back">Back Cover</a>
   <a class="wa" href="https://wa.me/201064128434?text=Hello%20GLORY%21%20I%20want%20to%20order%20from%20the%202026%20catalogue." target="_blank" rel="noopener">Order</a>
 </nav>
 
@@ -172,7 +184,7 @@
 <!-- Lightbox -->
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Page zoom">
   <button class="close" id="lbClose" aria-label="Close">✕</button>
-  <div class="stage" id="lbStage"><img id="lbImg" alt="Catalog page zoomed"></div>
+  <div class="stage" id="lbStage"><div class="wrap" id="lbWrap"></div></div>
   <div class="cap" id="lbCap"></div>
 </div>
 
@@ -197,18 +209,29 @@
   var gallery = document.getElementById("gallery");
   var html = "";
   SECTIONS.forEach(function(sec){
+    var isSpread = (sec.id !== "s-cover" && sec.id !== "s-back");
     var count = sec.last - sec.first + 1;
+    var countText = isSpread ? (count/2) + " spreads" : count + (count>1?' pages':' page');
     html += '<section class="sport" id="' + sec.id + '">' +
             '<h2 class="sport-title">' + sec.name + ' <span class="ar">' + sec.ar + '</span>' +
-            '<span class="count">' + count + (count>1?' pages':' page') + '</span></h2>';
-    for (var p = sec.first; p <= sec.last; p++){
-      var n = ("00" + p).slice(-3);
-      html += '<figure class="page" data-page="' + p + '">' +
-              '<img data-src="images/page-' + n + '.jpg" alt="GLORY 2026 catalogue page ' + p + ' — ' + sec.name + '" ' +
-                   'loading="lazy" decoding="async">' +
-              (sec.first===sec.last && p===sec.last && (sec.id==="s-cover"||sec.id==="s-back")
-                 ? '' : '') +
-              '<span class="pgno">' + p + '</span></figure>';
+            '<span class="count">' + countText + '</span></h2>';
+    if (isSpread){
+      for (var p = sec.first; p <= sec.last; p += 2){
+        var q = p + 1;
+        var n1 = ("00" + p).slice(-3), n2 = ("00" + q).slice(-3);
+        html += '<figure class="spread" data-pages="' + p + ',' + q + '">' +
+                '<img data-src="images/page-' + n1 + '.jpg" alt="GLORY 2026 catalogue page ' + p + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
+                '<img data-src="images/page-' + n2 + '.jpg" alt="GLORY 2026 catalogue page ' + q + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
+                '<span class="pgno">' + p + '-' + q + '</span></figure>';
+      }
+    } else {
+      for (var p = sec.first; p <= sec.last; p++){
+        var n = ("00" + p).slice(-3);
+        html += '<figure class="page" data-page="' + p + '">' +
+                '<img data-src="images/page-' + n + '.jpg" alt="GLORY 2026 catalogue page ' + p + ' — ' + sec.name + '" ' +
+                     'loading="lazy" decoding="async">' +
+                '<span class="pgno">' + p + '</span></figure>';
+      }
     }
     html += '</section>';
   });
@@ -239,50 +262,82 @@
     else { img.src = img.getAttribute("data-src"); }
   });
 
-  /* ---------- Lightbox tap-to-zoom ---------- */
+  /* ---------- Lightbox tap-to-zoom (single pages and 2-page spreads) ---------- */
   var lb = document.getElementById("lightbox");
-  var lbImg = document.getElementById("lbImg");
+  var lbWrap = document.getElementById("lbWrap");
   var lbStage = document.getElementById("lbStage");
   var lbCap = document.getElementById("lbCap");
   var scale = 1;
   var dbl = false;
+  var lbImgs = [];
 
-  function openLB(src, cap){
-    lbImg.src = src;
+  function fitLB(){
+    var vw = lbStage.clientWidth;
+    var gap = lbImgs.length > 1 ? 6 : 0;
+    var per = lbImgs.length > 1 ? Math.floor((vw - gap) / 2) : vw;
+    lbImgs.forEach(function(img){
+      var nw = img.naturalWidth, nh = img.naturalHeight;
+      var w = Math.min(nw, per);
+      if (lbImgs.length === 1 && nw < vw && nh < lbStage.clientHeight) w = nw;
+      img.style.width = w + "px";
+    });
+  }
+
+  function openLB(items, cap){
+    lbWrap.innerHTML = "";
+    lbImgs = [];
+    items.forEach(function(it){
+      var img = document.createElement("img");
+      img.src = it.src;
+      img.alt = it.alt || "";
+      lbWrap.appendChild(img);
+      lbImgs.push(img);
+    });
     lbCap.textContent = cap;
     scale = 1; dbl = false;
-    lbImg.style.transform = "scale(1)";
-    lbImg.style.width = "auto"; lbImg.style.height = "auto";
     lb.classList.add("open");
     lbStage.scrollTop = 0; lbStage.scrollLeft = 0;
-    // fit-to-screen: if image smaller than viewport, size it to fit
-    lbImg.onload = function(){
-      var vw = lbStage.clientWidth, vh = lbStage.clientHeight;
-      if (lbImg.naturalWidth < vw && lbImg.naturalHeight < vh){
-        lbImg.style.width = lbImg.naturalWidth + "px";
-      } else if (lbImg.naturalWidth <= vw){
-        lbImg.style.width = lbImg.naturalWidth + "px";
-      } else {
-        lbImg.style.width = vw + "px";
-      }
-    };
+    var pending = lbImgs.length;
+    var done = {};
+    lbImgs.forEach(function(img){
+      var fin = function(){
+        if (done[img.src]) return;
+        done[img.src] = true;
+        pending--;
+        if (pending <= 0){ fitLB(); lbImgs.forEach(function(i){ i.onload = null; }); }
+      };
+      img.onload = fin;
+      if (img.complete && img.naturalWidth > 0) fin();
+    });
   }
-  function closeLB(){ lb.classList.remove("open"); lbImg.onload = null; }
+  function closeLB(){ lb.classList.remove("open"); lbWrap.innerHTML = ""; lbImgs = []; }
   function zoomAt(clientX, clientY){
-    var rect = lbImg.getBoundingClientRect();
+    var rect = lbWrap.getBoundingClientRect();
     var ox = (clientX - rect.left) / rect.width;
     var oy = (clientY - rect.top) / rect.height;
-    lbImg.style.transformOrigin = (ox*100) + "% " + (oy*100) + "%";
-    lbImg.style.transform = "scale(" + scale + ")";
+    lbImgs.forEach(function(img){
+      img.style.transformOrigin = (ox*100) + "% " + (oy*100) + "%";
+      img.style.transform = "scale(" + scale + ")";
+    });
   }
 
   gallery.addEventListener("click", function(e){
-    var fig = e.target.closest(".page");
+    var fig = e.target.closest(".page, .spread");
     if (!fig) return;
-    var img = fig.querySelector("img");
-    var src = img.currentSrc || img.src || img.getAttribute("data-src");
-    var cap = "Page " + fig.getAttribute("data-page");
-    openLB(src, cap);
+    var imgs = fig.querySelectorAll("img");
+    var items = [], cap, pages;
+    if (fig.classList.contains("spread")){
+      pages = fig.getAttribute("data-pages").split(",");
+      cap = "Pages " + pages[0] + "-" + pages[1];
+    } else {
+      pages = [fig.getAttribute("data-page")];
+      cap = "Page " + pages[0];
+    }
+    for (var i = 0; i < imgs.length; i++){
+      items.push({ src: imgs[i].currentSrc || imgs[i].src || imgs[i].getAttribute("data-src"),
+                   alt: imgs[i].alt });
+    }
+    openLB(items, cap);
   });
 
   document.getElementById("lbClose").addEventListener("click", closeLB);
