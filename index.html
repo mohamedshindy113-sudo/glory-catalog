@@ -60,7 +60,10 @@
   /* ---------- Gallery ---------- */
   .page{
     position:relative;background:var(--card);border-radius:10px;overflow:hidden;
-    box-shadow:var(--shadow);margin-bottom:.9rem;cursor:zoom-in;
+    box-shadow:var(--shadow);margin:0 auto .9rem;cursor:zoom-in;
+    /* Single cover page = same size as ONE page of a spread (each spread page
+       is 50% of the container), centered horizontally. */
+    width:50%;
   }
   .page img{
     display:block;width:100%;height:auto;aspect-ratio:1/1;
@@ -109,9 +112,10 @@
     .page{
       display:flex;justify-content:center;
       padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);
+      width:auto;margin-left:auto;margin-right:auto;
     }
     .page img{
-      width:auto;height:min(calc(100vh - 5rem), calc(100vw - 1.5rem));
+      width:auto;height:min(calc(100vh - 5rem), calc((100vw - 1.5rem) / 2));
       aspect-ratio:1/1;
     }
     .spread{
