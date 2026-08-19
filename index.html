@@ -43,7 +43,7 @@
   }
   nav.sections a:hover{background:#e2e6ec}
   nav.sections a.wa{
-    background:var(--green);color:#fff;display:flex;align-items:center;gap:.3rem;
+    background:var(--accent);color:#fff;display:flex;align-items:center;gap:.3rem;
   }
 
   /* ---------- Sections ---------- */
@@ -57,7 +57,7 @@
   h2.sport-title .ar{font-size:.85rem;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0}
   h2.sport-title .count{margin-left:auto;font-size:.72rem;font-weight:600;color:var(--muted)}
 
-  /* ---------- Gallery (fallback mode) ---------- */
+  /* ---------- Gallery ---------- */
   .page{
     position:relative;background:var(--card);border-radius:10px;overflow:hidden;
     box-shadow:var(--shadow);margin-bottom:.9rem;cursor:zoom-in;
@@ -92,22 +92,6 @@
     text-transform:uppercase;letter-spacing:.06em;padding:.16rem .55rem;border-radius:999px;
     pointer-events:none;
   }
-
-  /* ---------- Flipbook (default mode when StPageFlip loads) ---------- */
-  #book-wrap{display:none;padding:.15rem 0 .2rem}
-  body.flipbook #book-wrap{display:block}
-  body.flipbook #gallery{display:none}
-  #book{margin:0 auto}
-  .book-hint{text-align:center;color:var(--muted);font-size:.72rem;margin-top:.6rem}
-  .my-page{background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.14)}
-  .my-page img{display:block;width:100%;height:100%;object-fit:cover;user-select:none;-webkit-user-drag:none}
-  /* StPageFlip core styles (inlined so the book always renders correctly) */
-  .stf__parent{position:relative;display:block;box-sizing:border-box;transform:translateZ(0);-ms-touch-action:pan-y;touch-action:pan-y}
-  .stf__wrapper{position:relative;width:100%;box-sizing:border-box}
-  .stf__parent canvas{position:absolute;width:100%;height:100%;left:0;top:0}
-  .stf__block{position:absolute;width:100%;height:100%;box-sizing:border-box;perspective:2000px}
-  .stf__item{display:none;position:absolute;transform-style:preserve-3d}
-  .stf__outerShadow,.stf__innerShadow,.stf__hardShadow,.stf__hardInnerShadow{position:absolute;left:0;top:0}
 
   /* ---------- Lightbox ---------- */
   #lightbox{
@@ -155,11 +139,6 @@
   a.wa-fab .txt{line-height:1.1}
   a.wa-fab .txt small{display:block;font-weight:600;font-size:.62rem;opacity:.85;letter-spacing:.03em}
 
-  footer{
-    text-align:center;padding:1.2rem 1rem 1.6rem;color:var(--muted);font-size:.75rem;
-    border-top:1px solid var(--line);
-  }
-  footer b{color:var(--ink)}
   @media (max-width:420px){ a.wa-fab .txt small{display:none} }
 </style>
 </head>
@@ -174,18 +153,7 @@
   <a class="wa" href="https://wa.me/201064128434?text=Hello%20GLORY%21%20I%20want%20to%20order%20from%20the%202026%20catalogue." target="_blank" rel="noopener">Order Now</a>
 </nav>
 
-<main>
-  <div id="book-wrap">
-    <div id="book" role="application" aria-label="GLORY 2026 catalogue flipbook"></div>
-    <p class="book-hint">Tap / drag to flip · Use ← → keys · Section buttons jump to the right spread</p>
-  </div>
-  <div id="gallery"></div>
-</main>
-
-<footer>
-  <b>GLORY Sportswear</b> — 2026 Catalogue · All designs © GLORY<br>
-  Order directly: <a href="https://wa.me/201064128434" target="_blank" rel="noopener">WhatsApp +20 106 412 8434</a>
-</footer>
+<main id="gallery"></main>
 
 <!-- Lightbox -->
 <div id="lightbox" role="dialog" aria-modal="true" aria-label="Page zoom">
@@ -257,7 +225,7 @@
   });
   gallery.innerHTML = html;
 
-  // Lazy fade-in + low-quality placeholder trick (fallback gallery mode)
+  // Lazy fade-in + low-quality placeholder trick
   var io = "IntersectionObserver" in window
     ? new IntersectionObserver(function(entries){
         entries.forEach(function(en){
@@ -392,107 +360,6 @@
     if (e.key === "Escape") closeLB();
   });
 
-  /* ================= Flipbook mode (StPageFlip) =================
-     Progressive enhancement: the scroll/spread gallery above is ALWAYS the
-     base. We try to load the flipbook library from a CDN; only when it is
-     available do we switch the page to flipbook mode. If the library fails
-     to load (offline, blocked CDN, in-app browser), the gallery remains. */
-  var BOOK_PAGES = 65;
-  var bookWrap = document.getElementById("book-wrap");
-  var pfLoaded = false;
-
-  function pfImg(n){
-    var img = document.createElement("img");
-    img.src = "images/page-" + ("00" + n).slice(-3) + ".jpg";
-    img.alt = "GLORY 2026 catalogue page " + n;
-    img.width = 1000; img.height = 1000;
-    img.draggable = false;
-    return img;
-  }
-
-  function enableFlipbook(){
-    var book = document.getElementById("book");
-    // 65 single-faced page elements: element 0 = page 1 (hard cover, shown
-    // alone when the book is closed), elements 1..64 = pages 2..65.
-    // StPageFlip pairs them as spreads [1,2], [3,4], ... = (2,3), (4,5), ...
-    for (var i = 1; i <= BOOK_PAGES; i++){
-      var el = document.createElement("div");
-      el.className = "my-page";
-      if (i === 1 || i === BOOK_PAGES) el.setAttribute("data-density", "hard");
-      el.appendChild(pfImg(i));
-      book.appendChild(el);
-    }
-    var pf = new St.PageFlip(book, {
-      width: 400, height: 400,           // square base page (1:1)
-      size: "stretch",
-      minWidth: 130, maxWidth: 520,
-      minHeight: 130, maxHeight: 520,
-      usePortrait: false,                // always landscape: two pages side by side
-      showCover: true,                   // page 1 shows alone as the front cover
-      autoSize: true,
-      startPage: 0,
-      flippingTime: 700,
-      maxShadowOpacity: 0.4,
-      mobileScrollSupport: true,
-      swipeDistance: 30,
-      useMouseEvents: true,
-      clickEventForward: false,
-      disableFlipByClick: false
-    });
-    pf.loadFromHTML(book.querySelectorAll(".my-page"));
-    pfLoaded = true;
-    document.body.classList.add("flipbook");
-
-    // Section nav links: jump to the spread that contains the section's first page.
-    // Element index of catalog page p is p-1; StPageFlip flips to the spread
-    // containing that element (football p=4 -> spread (4,5)).
-    document.getElementById("nav").addEventListener("click", function(e){
-      var a = e.target.closest("a");
-      if (!a || a.classList.contains("wa")) return; // Order button = plain link
-      var href = (a.getAttribute("href") || "").slice(1);
-      var sec = null;
-      for (var i = 0; i < SECTIONS.length; i++){ if (SECTIONS[i].id === href){ sec = SECTIONS[i]; break; } }
-      if (!sec) return;
-      e.preventDefault();
-      pf.flip(sec.first - 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
-    // Keyboard flipping (ignored while the lightbox is open)
-    document.addEventListener("keydown", function(e){
-      if (lb.classList.contains("open")) return;
-      if (e.key === "ArrowRight"){ pf.flipNext(); }
-      else if (e.key === "ArrowLeft"){ pf.flipPrev(); }
-    });
-  }
-
-  // Load the library from CDNs in order; poll until it appears (or give up).
-  var CDNS = [
-    "https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js",
-    "https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"
-  ];
-  function loadLib(i){
-    if (i >= CDNS.length) return; // all CDNs failed -> stay in gallery fallback
-    var s = document.createElement("script");
-    s.src = CDNS[i];
-    s.async = true;
-    s.onerror = function(){ loadLib(i + 1); };
-    document.head.appendChild(s);
-  }
-  var pfTries = 0;
-  var pfTimer = setInterval(function(){
-    if (window.St && window.St.PageFlip){
-      clearInterval(pfTimer);
-      try { enableFlipbook(); }
-      catch (err){
-        console.warn("StPageFlip init failed — keeping gallery fallback:", err);
-        document.body.classList.remove("flipbook");
-      }
-      return;
-    }
-    if (++pfTries >= 40){ clearInterval(pfTimer); } // ~8s timeout -> fallback
-  }, 200);
-  loadLib(0);
 })();
 </script>
 </body>
