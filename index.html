@@ -60,10 +60,7 @@
   /* ---------- Gallery ---------- */
   .page{
     position:relative;background:var(--card);border-radius:10px;overflow:hidden;
-    box-shadow:var(--shadow);margin:0 auto .9rem;cursor:zoom-in;
-    /* Single cover page = same size as ONE page of a spread (each spread page
-       is 50% of the container), centered horizontally. */
-    width:50%;
+    box-shadow:var(--shadow);margin-bottom:.9rem;cursor:zoom-in;
   }
   .page img{
     display:block;width:100%;height:auto;aspect-ratio:1/1;
@@ -100,6 +97,11 @@
   /* Desktop (fine pointer or wide screen): widen the catalog so pages are larger on PC */
   @media (min-width: 769px), (pointer: fine){
     main{max-width:1180px}
+    /* DESKTOP ONLY: single cover page (.page) = same size as ONE page of a
+       spread (each spread page is 50% of the container), centered, so the
+       cover's height matches a spread page. On mobile (portrait + landscape)
+       the cover keeps the previous behavior (full-width / t_52219304 sizing). */
+    .page{width:50%;margin:0 auto .9rem}
   }
   /* Mobile/tablet LANDSCAPE: book fills the screen VERTICALLY — each spread page is
      sized from viewport height (square, aspect 1/1) and the pair sits centered
@@ -115,7 +117,7 @@
       width:auto;margin-left:auto;margin-right:auto;
     }
     .page img{
-      width:auto;height:min(calc(100vh - 5rem), calc((100vw - 1.5rem) / 2));
+      width:auto;height:min(calc(100vh - 5rem), calc(100vw - 1.5rem));
       aspect-ratio:1/1;
     }
     .spread{
