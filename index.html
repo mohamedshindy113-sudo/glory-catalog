@@ -209,30 +209,44 @@
   var gallery = document.getElementById("gallery");
   var html = "";
   SECTIONS.forEach(function(sec){
-    var isSpread = (sec.id !== "s-cover" && sec.id !== "s-back");
-    var count = sec.last - sec.first + 1;
-    var countText = isSpread ? (count/2) + " spreads" : count + (count>1?' pages':' page');
+    // GLOBAL consecutive pairing starting at page 2: page 1 is the only single
+    // page (front cover); every other page pairs as (2,3), (4,5), (6,7), ...
+    // up to (64,65). All sport sections start on even pages and have even page
+    // counts, so no pair ever straddles a section boundary — the section
+    // headers stay intact and the pairing flows continuously.
+    var items = [];
+    var p = sec.first;
+    while (p <= sec.last){
+      if (p === 1){
+        items.push({first:1, last:1, isSpread:false});
+        p = 2;
+      } else {
+        items.push({first:p, last:Math.min(p + 1, sec.last), isSpread:true});
+        p += 2;
+      }
+    }
+    var spreads = 0, singles = 0;
+    items.forEach(function(it){ if (it.isSpread) spreads++; else singles++; });
+    var countText = (spreads ? spreads + (spreads > 1 ? " spreads" : " spread") : "")
+                  + (singles ? (spreads ? " + " : "") + singles + (singles > 1 ? " pages" : " page") : "");
     html += '<section class="sport" id="' + sec.id + '">' +
             '<h2 class="sport-title">' + sec.name + ' <span class="ar">' + sec.ar + '</span>' +
             '<span class="count">' + countText + '</span></h2>';
-    if (isSpread){
-      for (var p = sec.first; p <= sec.last; p += 2){
-        var q = p + 1;
-        var n1 = ("00" + p).slice(-3), n2 = ("00" + q).slice(-3);
-        html += '<figure class="spread" data-pages="' + p + ',' + q + '">' +
-                '<img data-src="images/page-' + n1 + '.jpg" alt="GLORY 2026 catalogue page ' + p + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
-                '<img data-src="images/page-' + n2 + '.jpg" alt="GLORY 2026 catalogue page ' + q + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
-                '<span class="pgno">' + p + '-' + q + '</span></figure>';
-      }
-    } else {
-      for (var p = sec.first; p <= sec.last; p++){
-        var n = ("00" + p).slice(-3);
-        html += '<figure class="page" data-page="' + p + '">' +
-                '<img data-src="images/page-' + n + '.jpg" alt="GLORY 2026 catalogue page ' + p + ' — ' + sec.name + '" ' +
+    items.forEach(function(it){
+      if (!it.isSpread){
+        var n = ("00" + it.first).slice(-3);
+        html += '<figure class="page" data-page="' + it.first + '">' +
+                '<img data-src="images/page-' + n + '.jpg" alt="GLORY 2026 catalogue page ' + it.first + ' — ' + sec.name + '" ' +
                      'loading="lazy" decoding="async">' +
-                '<span class="pgno">' + p + '</span></figure>';
+                '<span class="pgno">' + it.first + '</span></figure>';
+      } else {
+        var n1 = ("00" + it.first).slice(-3), n2 = ("00" + it.last).slice(-3);
+        html += '<figure class="spread" data-pages="' + it.first + ',' + it.last + '">' +
+                '<img data-src="images/page-' + n1 + '.jpg" alt="GLORY 2026 catalogue page ' + it.first + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
+                '<img data-src="images/page-' + n2 + '.jpg" alt="GLORY 2026 catalogue page ' + it.last + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
+                '<span class="pgno">' + it.first + '-' + it.last + '</span></figure>';
       }
-    }
+    });
     html += '</section>';
   });
   gallery.innerHTML = html;
