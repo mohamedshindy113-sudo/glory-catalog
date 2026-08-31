@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GLORY Sportswear — 2026 Catalogue</title>
-<meta name="description" content="GLORY 2026 sportswear catalogue — football, basketball, handball, volleyball & racket teamwear. Order directly on WhatsApp.">
+<meta name="description" content="GLORY 2026 sportswear catalogue — football, basketball, handball, volleyball, racket & training teamwear. Order directly on WhatsApp.">
 <style>
   :root{
     --ink:#111318;
@@ -211,6 +211,7 @@
   <a href="#s-handball">Handball</a>
   <a href="#s-volleyball">Volleyball</a>
   <a href="#s-racket">Racket</a>
+  <a href="#s-training">Training</a>
   <a class="wa" href="https://wa.me/201064128434?text=Hello%20GLORY%21%20I%20want%20to%20order%20from%20the%202026%20catalogue." target="_blank" rel="noopener">Order Now</a>
 </nav>
 
@@ -253,7 +254,8 @@
     {id:"s-handball",  name:"Handball",   ar:"كرة اليد",    first:28, last:39},
     {id:"s-volleyball",name:"Volleyball", ar:"الكرة الطائرة",first:40, last:51},
     {id:"s-racket",    name:"Racket",     ar:"مضرب",        first:52, last:63},
-    {id:"s-back",      name:"Back Cover", ar:"الغلاف الخلفي",first:64, last:65}
+    {id:"s-training",  name:"Training",   ar:"التدريب",     first:64, last:70},
+    {id:"s-back",      name:"Back Cover", ar:"الغلاف الخلفي",first:71, last:72}
   ];
 
   var gallery = document.getElementById("gallery");
@@ -271,7 +273,8 @@
         items.push({first:1, last:1, isSpread:false});
         p = 2;
       } else {
-        items.push({first:p, last:Math.min(p + 1, sec.last), isSpread:true});
+        var pairLast = Math.min(p + 1, sec.last);
+        items.push({first:p, last:pairLast, isSpread:pairLast !== p});
         p += 2;
       }
     }
