@@ -260,6 +260,7 @@
 
   var gallery = document.getElementById("gallery");
   var html = "";
+  var V = "?v=2"; // cache-buster: forces fresh images after content updates
   SECTIONS.forEach(function(sec){
     // GLOBAL consecutive pairing starting at page 2: page 1 is the only single
     // page (front cover); every other page pairs as (2,3), (4,5), (6,7), ...
@@ -289,14 +290,14 @@
       if (!it.isSpread){
         var n = ("00" + it.first).slice(-3);
         html += '<figure class="page" data-page="' + it.first + '">' +
-                '<img data-src="images/page-' + n + '.jpg" alt="GLORY 2026 catalogue page ' + it.first + ' — ' + sec.name + '" ' +
+                '<img data-src="images/page-' + n + '.jpg' + V + '" alt="GLORY 2026 catalogue page ' + it.first + ' — ' + sec.name + '" ' +
                      'loading="lazy" decoding="async">' +
                 '<span class="pgno">' + it.first + '</span></figure>';
       } else {
         var n1 = ("00" + it.first).slice(-3), n2 = ("00" + it.last).slice(-3);
         html += '<figure class="spread" data-pages="' + it.first + ',' + it.last + '">' +
-                '<img data-src="images/page-' + n1 + '.jpg" alt="GLORY 2026 catalogue page ' + it.first + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
-                '<img data-src="images/page-' + n2 + '.jpg" alt="GLORY 2026 catalogue page ' + it.last + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
+                '<img data-src="images/page-' + n1 + '.jpg' + V + '" alt="GLORY 2026 catalogue page ' + it.first + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
+                '<img data-src="images/page-' + n2 + '.jpg' + V + '" alt="GLORY 2026 catalogue page ' + it.last + ' — ' + sec.name + '" loading="lazy" decoding="async">' +
                 '<span class="pgno">' + it.first + '-' + it.last + '</span></figure>';
       }
     });
