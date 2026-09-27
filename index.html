@@ -249,22 +249,22 @@
   // Sections from the PDF TOC (1-based page numbers)
   var SECTIONS = [
     {id:"s-cover",     name:"Cover",      ar:"الغلاف",     first:1,  last:3},
-    {id:"s-football",  name:"Football",   ar:"كرة القدم",   first:4,  last:15},
-    {id:"s-basketball",name:"Basketball", ar:"كرة السلة",   first:16, last:27},
-    {id:"s-handball",  name:"Handball",   ar:"كرة اليد",    first:28, last:39},
-    {id:"s-volleyball",name:"Volleyball", ar:"الكرة الطائرة",first:40, last:51},
-    {id:"s-racket",    name:"Racket",     ar:"مضرب",        first:52, last:63},
-    {id:"s-training",  name:"Training",   ar:"التدريب",     first:64, last:70},
-    {id:"s-back",      name:"Back Cover", ar:"الغلاف الخلفي",first:71, last:72}
+    {id:"s-football",  name:"Football",   ar:"كرة القدم",   first:4,  last:17},
+    {id:"s-basketball",name:"Basketball", ar:"كرة السلة",   first:18, last:29},
+    {id:"s-handball",  name:"Handball",   ar:"كرة اليد",    first:30, last:41},
+    {id:"s-volleyball",name:"Volleyball", ar:"الكرة الطائرة",first:42, last:53},
+    {id:"s-racket",    name:"Racket",     ar:"مضرب",        first:54, last:65},
+    {id:"s-training",  name:"Training",   ar:"التدريب",     first:66, last:72},
+    {id:"s-back",      name:"Back Cover", ar:"الغلاف الخلفي",first:73, last:74}
   ];
 
   var gallery = document.getElementById("gallery");
   var html = "";
-  var V = "?v=3"; // cache-buster: forces fresh images after content updates
+  var V = "?v=4"; // cache-buster: forces fresh images after content updates
   SECTIONS.forEach(function(sec){
     // GLOBAL consecutive pairing starting at page 2: page 1 is the only single
     // page (front cover); every other page pairs as (2,3), (4,5), (6,7), ...
-    // up to (64,65). All sport sections start on even pages and have even page
+    // up to (66,67). All sport sections start on even pages and have even page
     // counts, so no pair ever straddles a section boundary — the section
     // headers stay intact and the pairing flows continuously.
     var items = [];
